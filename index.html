@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Crimsonland Base Arena</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="ui">
+      <h1>Crimsonland Base Arena</h1>
+      <div class="stats">
+        <span>HP: <span id="hp">100</span></span>
+        <span>Score: <span id="score">0</span></span>
+        <span>Wave: <span id="wave">1</span></span>
+      </div>
+      <div class="gold-display">
+        <span>💰 <span id="gold">0</span></span>
+      </div>
+      <div class="help">
+        WASD/Стрелки — движение, мышь — прицел, ЛКМ — стрельба, R — перезарядка.
+      </div>
+    </div>
+
+    <div class="shop-hint" id="shop-hint">
+      <div class="shop-hint-key">Q</div>
+      <div class="shop-hint-label">Магазин</div>
+    </div>
+
+    <canvas id="game"></canvas>
+
+    <div class="overlay" id="main-menu">
+      <div class="panel menu-panel">
+        <div class="menu-left">
+          <canvas id="player-preview" width="120" height="120"></canvas>
+        </div>
+        <div class="menu-right">
+          <h2>Crimsonland Base Arena</h2>
+          <p>Выживайте против волн врагов.<br>Чем дольше живёте — тем выше счёт.</p>
+          <div class="game-mode-selector">
+            <label>Режим игры:</label>
+            <div class="mode-buttons">
+              <button class="mode-btn active" data-mode="arcade">Аркада</button>
+              <button class="mode-btn" data-mode="arena">Арена</button>
+            </div>
+          </div>
+          <div id="checkpoint-selector" class="checkpoint-selector hidden">
+            <label>Начать с чекпоинта:</label>
+            <div id="checkpoint-list"></div>
+          </div>
+          <div id="mode-description" class="mode-description"></div>
+          <button id="start-btn">Начать игру</button>
+          <button id="shop-btn">Магазин</button>
+          <button id="leaderboard-btn">Лидерборд</button>
+          <button id="checkin-btn">Онлайн чекин</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="shop-menu">
+      <div class="panel">
+        <h2>Магазин улучшений</h2>
+        <p>Золото: <span id="shop-gold">0</span></p>
+        <div id="shop-items"></div>
+        <button id="back-from-shop">Назад</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="leaderboard-menu">
+      <div class="panel">
+        <h2>Лидерборд</h2>
+        <div id="leaderboard-list" class="leaderboard-list"></div>
+        <button id="back-from-leaderboard">Назад</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="checkin-menu">
+      <div class="panel">
+        <h2>Онлайн чекин</h2>
+        <p class="checkin-meta">Чекины: <span id="checkin-count">0</span></p>
+        <p class="checkin-meta">Бонус золота: <span id="checkin-multiplier">+0%</span></p>
+        <p class="checkin-timer">
+          <span id="checkin-timer-label">До следующего чек-ина:</span>
+          <span id="checkin-timer">--:--:--</span>
+        </p>
+        <p id="checkin-status" class="checkin-status"></p>
+        <button id="checkin-action">Сделать чек-ин</button>
+        <button id="back-from-checkin">Назад</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="game-over">
+      <div class="panel">
+        <h2>Вы погибели</h2>
+        <p>Счёт: <span id="final-score">0</span></p>
+        <p>Волна: <span id="final-wave">1</span></p>
+        <button id="restart-btn">Играть снова</button>
+        <button id="menu-btn">Главное меню</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="game-over">
+      <div class="panel">
+        <h2>Вы погибели</h2>
+        <p>Счёт: <span id="final-score">0</span></p>
+        <p>Волна: <span id="final-wave">1</span></p>
+        <button id="restart-btn">Играть снова</button>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
+

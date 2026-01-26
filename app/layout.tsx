@@ -4,19 +4,42 @@ import { SafeArea } from "@coinbase/onchainkit/minikit";
 import { minikitConfig } from "../minikit.config";
 import { RootProvider } from "./rootProvider";
 import "./globals.css";
+import "../style.css";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const { miniapp } = minikitConfig;
+  const appUrl = miniapp.homeUrl || "http://localhost:3000";
+  const ogImage = miniapp.ogImageUrl || `${appUrl}/screenshot.png`;
   return {
-    title: minikitConfig.miniapp.name,
-    description: minikitConfig.miniapp.description,
+    metadataBase: new URL(appUrl),
+    title: miniapp.name,
+    description: miniapp.description,
+    themeColor: miniapp.splashBackgroundColor || "#05070a",
+    icons: {
+      icon: "/icon.png",
+      apple: "/icon.png",
+    },
+    openGraph: {
+      title: miniapp.ogTitle || miniapp.name,
+      description: miniapp.ogDescription || miniapp.description,
+      type: "website",
+      images: [ogImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: miniapp.ogTitle || miniapp.name,
+      description: miniapp.ogDescription || miniapp.description,
+      images: [ogImage],
+    },
     other: {
+      "base:app_id": "69771d0a3a92926b661fd627",
       "fc:frame": JSON.stringify({
-        version: minikitConfig.miniapp.version,
-        imageUrl: minikitConfig.miniapp.heroImageUrl,
+        version: miniapp.version,
+        imageUrl: miniapp.heroImageUrl,
         button: {
-          title: `Join the ${minikitConfig.miniapp.name} Waitlist`,
+          title: `Join the ${miniapp.name} Waitlist`,
           action: {
-            name: `Launch ${minikitConfig.miniapp.name}`,
+            name: `Launch ${miniapp.name}`,
             type: "launch_frame",
           },
         },

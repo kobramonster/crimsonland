@@ -27,6 +27,7 @@ const checkinMenuEl = document.getElementById("checkin-menu");
 const backFromLeaderboardBtn = document.getElementById("back-from-leaderboard");
 const backFromCheckinBtn = document.getElementById("back-from-checkin");
 const leaderboardListEl = document.getElementById("leaderboard-list");
+const nicknameInput = document.getElementById("nickname-input");
 const checkinCountEl = document.getElementById("checkin-count");
 const checkinMultiplierEl = document.getElementById("checkin-multiplier");
 const checkinTimerLabelEl = document.getElementById("checkin-timer-label");
@@ -181,7 +182,9 @@ const state = {
 };
 
 const CHECKIN_STORAGE_KEY = "crimsonland_checkin";
+const ARCADE_GOLD_STORAGE_KEY = "crimsonland_arcade_gold";
 const LEADERBOARD_STORAGE_KEY = "crimsonland_leaderboard";
+const NICKNAME_STORAGE_KEY = "crimsonland_nickname";
 
 function loadJson(key, fallback) {
   try {
@@ -199,6 +202,28 @@ function saveJson(key, value) {
   } catch (error) {
     // ignore storage errors
   }
+}
+
+function getStoredNickname() {
+  const raw = loadJson(NICKNAME_STORAGE_KEY, "");
+  if (typeof raw !== "string") return "";
+  return raw.slice(0, 16);
+}
+
+function setStoredNickname(value) {
+  const nickname = value.trim().slice(0, 16);
+  saveJson(NICKNAME_STORAGE_KEY, nickname);
+}
+
+function getStoredArcadeGold() {
+  const value = Number(loadJson(ARCADE_GOLD_STORAGE_KEY, 0));
+  return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function setStoredArcadeGold(value) {
+  if (state.gameMode !== "arcade") return;
+  const safeValue = Math.max(0, Math.floor(value));
+  saveJson(ARCADE_GOLD_STORAGE_KEY, safeValue);
 }
 
 function getUtcDayKey(date = new Date()) {
@@ -358,7 +383,9 @@ function saveLeaderboard(entries) {
 
 function addLeaderboardEntry(score, wave, mode) {
   const entries = loadLeaderboard();
+  const nickname = getStoredNickname() || "Игрок";
   entries.push({
+    nickname,
     score,
     wave,
     mode,
@@ -388,7 +415,7 @@ function renderLeaderboard() {
     const modeLabel = entry.mode === "arena" ? "Арена" : "Аркада";
     const date = new Date(entry.date);
     const dateLabel = Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
-    const metaParts = [`Волна ${entry.wave}`, modeLabel];
+    const metaParts = [entry.nickname || "Игрок", `Волна ${entry.wave}`, modeLabel];
     if (dateLabel) metaParts.push(dateLabel);
 
     item.innerHTML = `
@@ -1928,6 +1955,7 @@ class Gold {
         const adjustedAmount = Math.max(1, Math.round(this.amount * multiplier));
         state.goldAmount += adjustedAmount;
         goldEl.textContent = state.goldAmount;
+        setStoredArcadeGold(state.goldAmount);
         const bonusPercent = Math.round((multiplier - 1) * 100);
         const bonusLabel = bonusPercent > 0 ? ` (+${bonusPercent}%)` : "";
         // уведомление
@@ -3030,6 +3058,7 @@ function resetGame(checkpoint = null) {
     state.score = checkpoint.score;
     state.goldAmount = checkpoint.gold;
     state.upgrades = JSON.parse(JSON.stringify(checkpoint.upgrades));
+    setStoredArcadeGold(state.goldAmount);
     // Обновляем игрока с улучшениями из чекпоинта
     state.player.maxHp = PLAYER_STATS.maxHp + state.upgrades.maxHp;
     state.player.hp = state.player.maxHp;
@@ -3045,7 +3074,7 @@ function resetGame(checkpoint = null) {
   } else {
     state.score = 0;
     state.wave = 1;
-    state.goldAmount = 0;
+    state.goldAmount = state.gameMode === "arcade" ? getStoredArcadeGold() : 0;
     state.upgrades = {
       maxHp: 0,
       reloadSpeed: 0,
@@ -4070,6 +4099,7 @@ function updateShopMenu() {
       buyBtn.addEventListener("click", () => {
         if (state.goldAmount >= upgrade.price) {
           state.goldAmount -= upgrade.price;
+          setStoredArcadeGold(state.goldAmount);
           if (upgrade.key === "maxHp") {
             state.upgrades.maxHp += 20;
           } else if (upgrade.key === "reloadSpeed") {
@@ -4201,6 +4231,15 @@ if (playerPreviewCanvas) {
 if (modeDescriptionEl && modeDescriptions[state.gameMode]) {
   modeDescriptionEl.textContent = modeDescriptions[state.gameMode];
   modeDescriptionEl.style.display = "block";
+}
+
+if (nicknameInput) {
+  nicknameInput.value = getStoredNickname();
+  nicknameInput.addEventListener("input", (e) => {
+    const target = e.target;
+    if (!target) return;
+    setStoredNickname(target.value || "");
+  });
 }
 
 updateCheckinUi();
